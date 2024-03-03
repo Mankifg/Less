@@ -1,7 +1,6 @@
 def convert_to_url(b10_board,lbp,base_url):
     b10_board_list = list(map(str,b10_board))
     b10_board_list = ",".join(b10_board_list)
-
     return base_url + f"/image?nums={b10_board_list}&lbp={lbp}"
 
 def is_valid_cords(x:int,y:int,max_x=5,max_y=5) -> bool:
@@ -54,17 +53,17 @@ def convert_to_binary_len12(dec:int) -> str:
     b = added_0 + b
     return b
 
-def filter_moves_out_of_bound(arry_of_moves):
+'''def filter_moves_out_of_bound(arry_of_moves):
     new_moves = []
     for move in arry_of_moves:
         #move = [x1, y1,x2, y2]
         
         m1,m2 = move
-        
+        print(m1,m2)
         if is_valid_cords(m1[0], m1[1]) and is_valid_cords(m2[0], m2[1]):
             new_moves.append(move)    
     
-    return new_moves
+    return new_moves'''
 
     
 def moves_in_tile(x,y):
@@ -118,7 +117,7 @@ def moves_that_cost_in_tile(arry_of_corrds,b10_num):
             
     return good_connections
     
-def every_absolute_moves():
+'''def every_absolute_moves():
     moves = []
     for x in range(0,6,2):
         for y in range(0,6,2):
@@ -126,7 +125,7 @@ def every_absolute_moves():
             filter_out_of_boud = filter_moves_out_of_bound(ot_moves)
             moves = moves + filter_out_of_boud
             
-    return moves
+    return moves'''
     
 def moves_that_cost_all(arry_of_nums):
     all_moves = []
@@ -157,10 +156,8 @@ def reformate_wall_moves(normal_wall_moves):
     new_moves = []
     
     
-    
     for i in range(len(normal_wall_moves)):
         m = normal_wall_moves[i]
-        m1,m2 = m[0:2],m[2:4]
         if not ([m,1] in new_moves or [start_end_flip(m),1] in new_moves):
             new_moves.append([m,1])
         else:
@@ -175,12 +172,12 @@ def every_one_step_move(x:int,y:int):
         x (int): x
         y (int): y
     Returns:
-        list [ [x,y,nx,ny] ]:
+        list [ [x,y,nx,ny],... ]:
     """
     moves = []
     for dx in range(-1,2):
         for dy in range(-1,2):
-            if dx == dy == 0:
+            if not (dx == 0) != (dy == 0): # not me
                 continue
             
             nx = x + dx
@@ -189,4 +186,90 @@ def every_one_step_move(x:int,y:int):
             if is_valid_cords(nx,ny):
                 moves.append([x,y,nx,ny])
     return moves
+
+def filter_double_moves_from(board,wall_moves,x,y):
+    double_step = []
+    
+    double_offsets = [
+        [-2,0],[2,0],
+        [0,-2],[0,2],
+    ]
+    where_is_piece = [
+        [-1,0],[1,0],
+        [0,-1],[0,1],
+    ]
+
+    for i in range(len(double_offsets)):  
+        dx,dy = double_offsets[i]
+        
+        nx, ny = x + dx, y + dy
+
+        # normal filter out of bound
+        if not is_valid_cords(nx,ny):
+            continue
+        
+        # jump only if piece
+        piece_dx, piece_dy = where_is_piece[i]
+       
+        piece_dx, piece_dy = x + piece_dx, y + piece_dy
+
+        
+        piece = what_is_here(board,piece_dx,piece_dy)
+        if not (piece in ["w","b"]):
+            continue
+        
+        # check for wall
+        moves = [
+            [x,y,piece_dx,piece_dy],
+            [piece_dx,piece_dy,nx,ny]
+        ]
+        
+        # can't be wall in any place
+        for m in moves:
+            if any(sublist[0] == m for sublist in wall_moves):
+                continue
+            
+        double_step.append([x,y,nx,ny])
+        
+    return double_step
+
+def filter_one_step_moves(board,wall_moves,x,y):
+    one_step = every_one_step_move(x,y)
+    
+    moves = []
+    
+    for move in one_step:
+        m1,m2 = move[0:2], move[2:4]
+        
+        # cant be same / just in case
+        if m1 == m2:
+            continue
+        
+        # is empty
+        piece = what_is_here(board,m1[0],m1[1])
+        if piece in ["b","w"]:
+            continue
+        
+        
+        
+        moves.append(move)
+        
+        
+    return moves
+    
+def legal_moves_from_xy(board,wall_moves,x,y):
+    print("#"*10)
+    all_moves = []
+    
+    one_step = filter_one_step_moves(board,wall_moves,x,y)
+    
+    double_step = filter_double_moves_from(board,wall_moves,x,y)
+        
+    print(one_step)
+    print(double_step)
+    
+    all_moves = one_step + double_step
+    
+    return all_moves
+        
 
