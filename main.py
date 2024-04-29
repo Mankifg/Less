@@ -57,6 +57,6 @@ print(legal)
 white_places = functions.all_cords_that_match(boardify, "b")
 print(white_places)
 
-"""print("white legal")
+print("white legal")
 all_white_legal = functions.legal_moves_for_color(boardify,WALL_MOVES_WITH_COST,"b")
-print(len(all_white_legal),all_white_legal)"""
+print(len(all_white_legal),all_white_legal)

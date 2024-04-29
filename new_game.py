@@ -1,7 +1,7 @@
 import requests
 import json
 import urllib.request
-
+import utils
 import functions
 
 
@@ -9,6 +9,8 @@ import functions
 BASE_URL = "https://less.palcka.si"
 START_POS = "bb4/bb4/6/6/4ww/4ww"
 
+START_POS = utils.random_lbp()
+print(START_POS)
 
 new_game = f"{BASE_URL}/new" 
 
@@ -20,3 +22,4 @@ current_pos = START_POS
 
 game_url = functions.convert_to_url(b10_board,current_pos,BASE_URL)
 print(game_url)
+
