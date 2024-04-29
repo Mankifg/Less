@@ -183,16 +183,19 @@ def every_one_step_move(x: int, y: int):
         list [ [x,y,nx,ny],... ]:
     """
     moves = []
-    for dx in range(-1, 2):
-        for dy in range(-1, 2):
-            if not (dx == 0) != (dy == 0):  # not me
-                continue
+    stor = [
+        [-1,0],
+        [1,0],
+        [0,-1],
+        [0,1]
+    ]
+    for dx,dy in stor:     
+        nx = x + dx
+        ny = y + dy
+        
+        if is_valid_cords(nx, ny):
+            moves.append([x, y, nx, ny])
 
-            nx = x + dx
-            ny = x + dy
-
-            if is_valid_cords(nx, ny):
-                moves.append([x, y, nx, ny])
     return moves
 
 
@@ -247,7 +250,7 @@ def filter_one_step_moves(board, wall_moves, x, y):
     one_step = every_one_step_move(x, y)
 
     moves = []
-
+    print("move handle 1 step")
     for move in one_step:
         m1, m2 = move[0:2], move[2:4]
 
@@ -256,12 +259,12 @@ def filter_one_step_moves(board, wall_moves, x, y):
             continue
 
         # is empty
-        piece = what_is_here(board, m1[0], m1[1])
-        if piece in ["b", "w"]:
+        piece = what_is_here(board, m2[0], m2[1])
+        print(piece,m1)
+        if piece in ["b", "w"]:  # if NOT empty
             continue
 
         moves.append(move)
-
     return moves
 
 
@@ -273,9 +276,29 @@ def legal_moves_from_xy(board, wall_moves, x, y):
 
     double_step = filter_double_moves_from(board, wall_moves, x, y)
 
-    print(one_step)
-    print(double_step)
+    print(f"single step {x},{y}",one_step)
+    print(f"double step {x},{y}",double_step)
 
     all_moves = one_step + double_step
 
     return all_moves
+
+def all_cords_that_match(board,piece):
+    cords = []
+    
+    for y in range(len(board)):
+        for x in range(len(board[y])):
+            if board[y][x] == piece:
+                cords.append([x,y])
+                
+    return cords
+
+def legal_moves_for_color(board, wall_moves, color):
+    legal_moves = []
+    cords = all_cords_that_match(board, color)
+
+    for cord in cords:
+        legal = legal_moves_from_xy(board, wall_moves, cord[0], cord[1])
+        legal_moves += legal
+        
+    return legal_moves
