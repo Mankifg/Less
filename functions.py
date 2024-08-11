@@ -41,14 +41,25 @@ def blockiy_positon(lbp):
 
 
 def boardify(lbp):
-    for i in range(2, 10):
+    for i in range(1, 10):
         lbp = lbp.replace(str(i), "0" * i)
-
     lbp = lbp.split("/")
     for i in range(len(lbp)):
         lbp[i] = list(lbp[i])
-
     return lbp
+
+def reverse(ar2d):
+    for i in range(len(ar2d)):
+        ar2d[i] = "".join(ar2d[i])
+        
+    print(ar2d)
+    lbp = "/".join(ar2d)
+    
+    for i in range(10,1,-1):
+        lbp = lbp.replace("0" * i,str(i))
+        
+    return lbp
+    
 
 
 def convert_to_binary_len12(dec: int) -> str:
@@ -307,7 +318,7 @@ def legal_moves_for_color(lbp, b10_board, color):
 
 def cost_of_move(wall,move):
     for m,cost in wall:
-        if m == move or start_end_flip(m) == move:
+        if m == move: #or start_end_flip(m) == move:
             return cost
         
     return 0
@@ -324,7 +335,18 @@ def cost_of_moves(current_pos,b10_board,color):
         cost_moves.append([move,c+1])
         
     return cost_moves
-        
 
+def push_move(lbp,ary_move):
+    b = boardify(lbp)
+    x1,y1,x2,y2 = ary_move
+
+    print(b,ary_move)
+    save = b[y1][x1]
+    b[y1][x1] = "0"
+    b[y2][x2] = save
     
+    print(b)
+    lbp = reverse(b)
+    print(lbp)
     
+    return lbp
