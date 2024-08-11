@@ -5,7 +5,6 @@ import utils
 import functions
 
 
-
 BASE_URL = "https://less.palcka.si"
 START_POS = "bb4/bb4/6/6/4ww/4ww"
 
@@ -23,3 +22,6 @@ current_pos = START_POS
 game_url = functions.convert_to_url(b10_board,current_pos,BASE_URL)
 print(game_url)
 
+print("white legal")
+all_white_legal = functions.legal_moves_for_color(current_pos,b10_board,"b")
+print(len(all_white_legal),all_white_legal)

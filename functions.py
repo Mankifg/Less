@@ -155,12 +155,12 @@ def moves_that_cost_all(arry_of_nums):
 
 def start_end_flip(moves: list) -> list:
     # [x,y,a,b] -> [a,b,x,y]
-
     return [moves[2], moves[3], moves[0], moves[1]]
 
 
-def reformate_wall_moves(normal_wall_moves):
-    moves = []
+def get_wall_moves(b10_board):
+    normal_wall_moves = moves_that_cost_all(b10_board)
+    
     new_moves = []
 
     for i in range(len(normal_wall_moves)):
@@ -250,7 +250,7 @@ def filter_one_step_moves(board, wall_moves, x, y):
     one_step = every_one_step_move(x, y)
 
     moves = []
-    print("move handle 1 step")
+    #print("move handle 1 step")
     for move in one_step:
         m1, m2 = move[0:2], move[2:4]
 
@@ -260,7 +260,7 @@ def filter_one_step_moves(board, wall_moves, x, y):
 
         # is empty
         piece = what_is_here(board, m2[0], m2[1])
-        print(piece,m1)
+        #print(piece,m1)
         if piece in ["b", "w"]:  # if NOT empty
             continue
 
@@ -269,15 +269,15 @@ def filter_one_step_moves(board, wall_moves, x, y):
 
 
 def legal_moves_from_xy(board, wall_moves, x, y):
-    print("#" * 10)
+    #print("#" * 10)
     all_moves = []
 
     one_step = filter_one_step_moves(board, wall_moves, x, y)
 
     double_step = filter_double_moves_from(board, wall_moves, x, y)
 
-    print(f"single step {x},{y}",one_step)
-    print(f"double step {x},{y}",double_step)
+    #print(f"single step {x},{y}",one_step)
+    #print(f"double step {x},{y}",double_step)
 
     all_moves = one_step + double_step
 
@@ -293,7 +293,9 @@ def all_cords_that_match(board,piece):
                 
     return cords
 
-def legal_moves_for_color(board, wall_moves, color):
+def legal_moves_for_color(lbp, b10_board, color):
+    board = boardify(lbp)
+    wall_moves = get_wall_moves(b10_board) 
     legal_moves = []
     cords = all_cords_that_match(board, color)
 
@@ -302,3 +304,27 @@ def legal_moves_for_color(board, wall_moves, color):
         legal_moves += legal
         
     return legal_moves
+
+def cost_of_move(wall,move):
+    for m,cost in wall:
+        if m == move or start_end_flip(m) == move:
+            return cost
+        
+    return 0
+
+
+def cost_of_moves(current_pos,b10_board,color):
+    moves = legal_moves_for_color(current_pos,b10_board,color)
+    
+    wall_moves = get_wall_moves(b10_board)
+    cost_moves = []
+    
+    for move in moves:
+        c = cost_of_move(wall_moves,move)
+        cost_moves.append([move,c+1])
+        
+    return cost_moves
+        
+
+    
+    
