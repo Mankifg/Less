@@ -21,32 +21,37 @@ lbp = START_POS
 
 
 while 1:
-    to_spend = 3
+    move_power = 3
         
     while 1:
         print(functions.convert_to_url(b10_board,lbp,BASE_URL))
+        print(f"Move power left: {move_power}")
         white_legal_cost = functions.cost_of_moves(lbp,b10_board,"w")
         user_move = input("Enter move in coordnite notation a1a3 >")
-        move_ary = pars.parse_move(user_move)
-        print(move_ary)
+        succes,move_ary = pars.parse_move(user_move)
+        if not succes:
+            print(move_ary)
+            continue
+        
         cost = functions.cost_of_move(white_legal_cost,move_ary)
         print(cost)
         if cost == 0:
             print("Not legal")
             continue
-        if cost > to_spend:
+        if cost > move_power:
             print("You dont have enought Move Power™")
             continue
         
         break
     
-    
     print("# move ")
-    print(lbp)
     lbp = functions.push_move(lbp,move_ary)
-    print(lbp)
-    
-    to_spend -= cost
     print("Move done")
+    
+    move_power -= cost
+    
+    if move_power == 0:
+        break
+    
     
 print("Player done")
