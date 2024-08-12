@@ -1,7 +1,7 @@
 import requests
 import json
 import urllib.request
-import utils
+import random
 
 import pars
 import functions
