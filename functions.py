@@ -262,7 +262,10 @@ def every_one_step_move(x: int, y: int):
     return moves
 
 
-def filter_double_moves_from(board, wall_moves, x, y):
+def filter_double_moves_from(board, b10_board, x, y):
+    print("seartch ard",x,y)
+    wall_moves = get_wall_moves(b10_board)
+    
     double_step = []
 
     double_offsets = [
@@ -281,7 +284,8 @@ def filter_double_moves_from(board, wall_moves, x, y):
     for i in range(len(double_offsets)):
         dx, dy = double_offsets[i]
 
-        nx, ny = x + dx, y + dy
+        nx = x + dx
+        ny = y + dy
 
         # normal filter out of bound
         if not is_valid_cords(nx, ny):
@@ -297,19 +301,23 @@ def filter_double_moves_from(board, wall_moves, x, y):
             continue
 
         # check for wall
-        moves = [
+        checking_moves = [
             [x, y, piece_dx, piece_dy],
+            [piece_dx,piece_dy, x,y],
+            
             [piece_dx, piece_dy, nx, ny],
-            start_end_flip([x, y, piece_dx, piece_dy]),
-            start_end_flip([piece_dx, piece_dy, nx, ny]),
-                 ]
-
-        # can't be wall in any place
-        for m in moves:
-            if any(sublist[0] == m for sublist in wall_moves):
-                continue
-
-        double_step.append([x, y, nx, ny])
+            [nx,ny,piece_dx,piece_dy],
+        ]
+        
+        only_walls = [el[0] for el in wall_moves]
+         
+        isGood = True
+        for cm in checking_moves: # check move
+            if cm in only_walls:
+                isGood = False
+                
+        if isGood:
+            double_step.append([x, y, nx, ny])
 
     return double_step
 
@@ -338,13 +346,12 @@ def filter_one_step_moves(board, b10_board, x, y):
 
 
 def legal_moves_from_xy(board,b10_board, x, y):
-    wall_moves = get_wall_moves(b10_board)
     #print("#" * 10)
     all_moves = []
 
     one_step = filter_one_step_moves(board, b10_board, x, y)
 
-    double_step = filter_double_moves_from(board, wall_moves, x, y)
+    double_step = filter_double_moves_from(board, b10_board, x, y)
 
     #print(f"single step {x},{y}",one_step)
     #print(f"double step {x},{y}",double_step)
@@ -374,9 +381,10 @@ def legal_moves_for_color(lbp, b10_board, color):
         
     return legal_moves
 
-def singe_move_cost(wall,move):
-    for m,cost in wall:
-        if m == move: #or start_end_flip(m) == move:
+def singe_move_cost(walls,move):
+    for m,cost in walls:
+        #print(m,cost)
+        if m == move or start_end_flip(m) == move:
             return cost
         
     return 0

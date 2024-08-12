@@ -25,19 +25,32 @@ def swap_players(p):
     
     
 move_power = 3 
-current_player = "w"   
+current_player = "w" 
+
+print(functions.convert_to_url(b10_board,lbp,BASE_URL))
+
+cost_of_moves = functions.cost_of_moves(lbp,b10_board,"w")
+for i,v in cost_of_moves:
+    print(pars.from_arry_notation(i),v)
+    
+
+  
 while 1: #? player move
     while 1: #? good input
         print(functions.convert_to_url(b10_board,lbp,BASE_URL))
         print(f"Move power left: {move_power}")
         color_legal_cost = functions.cost_of_moves(lbp,b10_board,current_player)
-        print(len(color_legal_cost),color_legal_cost)
+        #print("ebug",len(color_legal_cost),color_legal_cost)
+        
+        print("ebug",len(color_legal_cost),)
+        for i,v in color_legal_cost:
+            print(pars.from_arry_notation(i),v)
         user_move = input(f"{current_player} | Enter move in coordnite notation a1a3 >")
         succes,move_ary = pars.from_coord_notation(user_move)
         if not succes:
             print(move_ary)
             continue
-        print(move_ary)
+        
         cost = functions.singe_move_cost(color_legal_cost,move_ary)
         print(cost)
         if cost == 0:
