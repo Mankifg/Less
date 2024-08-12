@@ -1,3 +1,5 @@
+import pars
+
 def convert_to_url(b10_board, lbp, base_url):
     b10_board_list = list(map(str, b10_board))
     b10_board_list = ",".join(b10_board_list)
@@ -61,7 +63,6 @@ def reverse(ar2d):
     return lbp
     
 
-
 def convert_to_binary_len12(dec: int) -> str:
     b = bin(dec)
     b = str(b)[2::]
@@ -83,7 +84,8 @@ def convert_to_binary_len12(dec: int) -> str:
     return new_moves"""
 
 
-def moves_in_tile(x, y):
+def moves_in_tile(x,y):
+    #print("running",x,y)
     offsets = [
         # 1. row
         [0, -1, 0, 0],
@@ -112,7 +114,6 @@ def moves_in_tile(x, y):
 
         returning_offsets[i][1] += y
         returning_offsets[i][3] += y
-
         """for z in range(len(returning_offsets[i][j])):
                 if z % 2 == 0: # x
                     returning_offsets[i][j][z] = returning_offsets[i][j][z] + x
@@ -146,7 +147,7 @@ def moves_that_cost_in_tile(arry_of_corrds, b10_num):
     return moves"""
 
 
-def moves_that_cost_all(arry_of_nums):
+'''def moves_that_cost_all(arry_of_nums):
     all_moves = []
 
     for i in range(len(arry_of_nums)):
@@ -162,7 +163,7 @@ def moves_that_cost_all(arry_of_nums):
         all_moves = all_moves + moves
 
     return all_moves
-
+'''
 
 def start_end_flip(moves: list) -> list:
     # [x,y,a,b] -> [a,b,x,y]
@@ -170,19 +171,70 @@ def start_end_flip(moves: list) -> list:
 
 
 def get_wall_moves(b10_board):
-    normal_wall_moves = moves_that_cost_all(b10_board)
+    normal_wall_moves = []
+
+    for i in range(len(b10_board)):
+        #print("H"*10,i)
+        b10_num = b10_board[i]
+        # ? b10_num = num given in main
+
+        y = int(i / 3)*2
+        x = int(i % 3)*2
+
+        all_moves_in_tile = moves_in_tile(x, y)
+        #print(len(all_moves_in_tile),all_moves_in_tile)
+        moves = moves_that_cost_in_tile(all_moves_in_tile, b10_num)
+        #print(len(moves),moves)
+        
+        normal_wall_moves = normal_wall_moves + moves
     
-    new_moves = []
+  
+    #print(f"{normal_wall_moves=}")
+    #print(len(normal_wall_moves))
+    
+    walls = []
 
     for i in range(len(normal_wall_moves)):
-        m = normal_wall_moves[i]
-        if not ([m, 1] in new_moves or [start_end_flip(m), 1] in new_moves):
-            new_moves.append([m, 1])
+        w = normal_wall_moves[i]
+        walls.append([w, 1])
+        
+        
+        '''if not ([w, 1] in walls or [start_end_flip(w), 1] in w):
+            walls.append([w, 1])
         else:
-            new_moves.remove([m, 1])
-            new_moves.append([m, 2])
+            walls.remove([w, 1])
+            walls.append([w, 2])'''
+            
+    #print("."*10)
+    #print(walls)
+    #print(len(walls))
+    
+    new_moves = []
+    for move,value in walls:
+        
+        if is_valid_cords(move[0],move[1]) and is_valid_cords(move[2],move[3]):
+            new_moves.append([move,value])
+            
+    #print(f"Wall moves: {len(new_moves)}")#,{new_moves}")
+    
+    walls = []
+    
+    for i in range(len(new_moves)):
+        c = new_moves[i][0]
+        if [c,1] in walls:
+            print(1)
+            walls.remove([c,1])
+            walls.append([c,2])
+            
+        elif [start_end_flip(c),1] in walls:
+            print(1)
+            walls.remove([start_end_flip(c),1])
+            walls.append([start_end_flip(c),2])
+        else:
+            
+            walls.append([c,1])
 
-    return new_moves
+    return walls
 
 
 def every_one_step_move(x: int, y: int):
@@ -245,7 +297,12 @@ def filter_double_moves_from(board, wall_moves, x, y):
             continue
 
         # check for wall
-        moves = [[x, y, piece_dx, piece_dy], [piece_dx, piece_dy, nx, ny]]
+        moves = [
+            [x, y, piece_dx, piece_dy],
+            [piece_dx, piece_dy, nx, ny],
+            start_end_flip([x, y, piece_dx, piece_dy]),
+            start_end_flip([piece_dx, piece_dy, nx, ny]),
+                 ]
 
         # can't be wall in any place
         for m in moves:
@@ -257,7 +314,8 @@ def filter_double_moves_from(board, wall_moves, x, y):
     return double_step
 
 
-def filter_one_step_moves(board, wall_moves, x, y):
+def filter_one_step_moves(board, b10_board, x, y):
+    #wall_moves = get_wall_moves(b10_board)
     one_step = every_one_step_move(x, y)
 
     moves = []
@@ -279,11 +337,12 @@ def filter_one_step_moves(board, wall_moves, x, y):
     return moves
 
 
-def legal_moves_from_xy(board, wall_moves, x, y):
+def legal_moves_from_xy(board,b10_board, x, y):
+    wall_moves = get_wall_moves(b10_board)
     #print("#" * 10)
     all_moves = []
 
-    one_step = filter_one_step_moves(board, wall_moves, x, y)
+    one_step = filter_one_step_moves(board, b10_board, x, y)
 
     double_step = filter_double_moves_from(board, wall_moves, x, y)
 
@@ -305,18 +364,17 @@ def all_cords_that_match(board,piece):
     return cords
 
 def legal_moves_for_color(lbp, b10_board, color):
-    board = boardify(lbp)
-    wall_moves = get_wall_moves(b10_board) 
+    board = boardify(lbp) 
     legal_moves = []
     cords = all_cords_that_match(board, color)
 
     for cord in cords:
-        legal = legal_moves_from_xy(board, wall_moves, cord[0], cord[1])
+        legal = legal_moves_from_xy(board, b10_board, cord[0], cord[1])
         legal_moves += legal
         
     return legal_moves
 
-def cost_of_move(wall,move):
+def singe_move_cost(wall,move):
     for m,cost in wall:
         if m == move: #or start_end_flip(m) == move:
             return cost
@@ -331,7 +389,7 @@ def cost_of_moves(current_pos,b10_board,color):
     cost_moves = []
     
     for move in moves:
-        c = cost_of_move(wall_moves,move)
+        c = singe_move_cost(wall_moves,move)
         cost_moves.append([move,c+1])
         
     return cost_moves

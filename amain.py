@@ -33,7 +33,7 @@ white_legal_cost = functions.cost_of_moves(current_pos,b10_board,"w")
 print(white_legal_cost)
 
 user_move = input("Enter move in coordnite notation a1a3 >")
-move_ary = pars.parse_move(user_move)
+move_ary = pars.from_coord_notation(user_move)
 print(move_ary)
 
 
