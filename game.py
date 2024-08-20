@@ -9,6 +9,7 @@ import game_utils
 
 BASE_URL = "https://less.palcka.si"
 START_POS = "bb4/bb4/6/6/4ww/4ww"
+START_POS = "bb4/bb4/6/5w/4w0/4ww"
 #START_POS = "ww4/w1w3/6/6/bb4/bb4"
 #START_POS = utils.random_lbp()
 print(START_POS)
@@ -49,6 +50,7 @@ while 1: #? game
                 print(pars.from_arry_notation(i),v)
             user_move = input(f"INFO | {current_player} | Enter move in coordnite notation a1a3 >")
             succes,move_ary = pars.from_coord_notation(user_move)
+            print(move_ary)
             if not succes:
                 print(move_ary)
                 continue
