@@ -1,2 +1,4 @@
-# Less
-> Less go - Rok 2024
+# LessGame
+
+> Less go
+- Rok 2024
